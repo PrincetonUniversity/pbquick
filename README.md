@@ -1,3 +1,3 @@
-# pbquick: Fast Poisson Binomial Distribution
+# Fast R Package for the Poisson Binomial Distribution
 
-Repository for the development of R package "pbquick" by Santiago Olivella and Yuki Shiraito
+Repository for the development of R package "poisbinom" by Santiago Olivella and Yuki Shiraito

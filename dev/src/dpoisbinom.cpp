@@ -791,8 +791,8 @@ Rboolean fft_work(double *a, double *b, int nseg, int n, int nspn, int isn,
 
 
 // [[Rcpp::export]]
-Rcpp::NumericVector dpbquick(Rcpp::IntegerVector& nvec,
-			     Rcpp::NumericVector& pp)
+Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& nvec,
+			       Rcpp::NumericVector& pp)
 {
 
   using namespace Rcpp;

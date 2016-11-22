@@ -1,21 +1,21 @@
 #!/bin/bash
 
-Rscript -e "remove.packages('pbquick')"
+Rscript -e "remove.packages('poisbinom')"
 
 echo "--------------------------"
-echo "Script to compile 'pbquick' and run test code"
+echo "Script to compile 'poisbinom' and run test code"
 echo
 
-if [ -e "pbquick" ]&& [ -d "pbquick" ]; then
-    rm -rf pbquick
+if [ -e "poisbinom" ]&& [ -d "poisbinom" ]; then
+    rm -rf poisbinom
     echo
-    echo "Old 'pbquick' folder is removed."
+    echo "Old 'poisbinom' folder is removed."
     echo "--------------------------"
     echo
 fi
 
 
-Rscript -e "library(Rcpp); Rcpp.package.skeleton('pbquick')"
+Rscript -e "library(Rcpp); Rcpp.package.skeleton('poisbinom')"
 
 echo
 echo
@@ -24,8 +24,8 @@ echo "--------------------------"
 echo
 echo
 
-cp src/dpbquick.cpp pbquick/src/
-rm pbquick/src/rcpp_hello_world.cpp
+cp src/dpbquick.cpp poisbinom/src/
+rm poisbinom/src/rcpp_hello_world.cpp
 
 echo
 echo
@@ -34,23 +34,23 @@ echo "--------------------------"
 echo
 echo
 
-cd pbquick
+cd poisbinom
 Rscript -e "library(Rcpp); compileAttributes(verbose=TRUE)"
-rm man/pbquick-package.Rd
+rm man/poisbinom-package.Rd
 
 echo
 echo
-echo "'pbquick' is compiled."
+echo "'poisbinom' is compiled."
 echo "--------------------------"
 echo
 echo
 
 cd ..
-R CMD INSTALL pbquick
+R CMD INSTALL poisbinom
 
 echo
 echo
-echo "'pbquick' is installed."
+echo "'poisbinom' is installed."
 echo "--------------------------"
 echo
 echo
@@ -59,6 +59,6 @@ echo "--------------------------"
 echo
 echo
 
-Rscript test/test_pbquick.R --verbose
+Rscript test/test_poisbinom.R --verbose
 
 
