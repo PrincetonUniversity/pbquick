@@ -24,7 +24,7 @@ echo "--------------------------"
 echo
 echo
 
-cp src/dpbquick.cpp poisbinom/src/
+cp src/dpoisbinom.cpp poisbinom/src/
 rm poisbinom/src/rcpp_hello_world.cpp
 
 echo
