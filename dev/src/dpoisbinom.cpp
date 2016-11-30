@@ -39,8 +39,8 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& nvec,
     temp = 1.;
     tmp_real = f.real();
     tmp_imag = f.imag();
-    f.real( tmp_real * C_real - tmp_imag * C_imag );
-    f.imag( tmp_imag * C_real + tmp_real * C_imag );
+    f.real() = tmp_real * C_real - tmp_imag * C_imag;
+    f.imag() = tmp_imag * C_real + tmp_real * C_imag;
     for(std::size_t j = 0; j < n; ++j){
       temp *= (1. + (f - 1.) * pp[j]);
     }
