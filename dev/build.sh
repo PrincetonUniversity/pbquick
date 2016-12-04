@@ -24,7 +24,7 @@ echo "--------------------------"
 echo
 echo
 
-cp src/dpoisbinom.cpp poisbinom/src/
+cp -r src/* poisbinom/src/
 rm poisbinom/src/rcpp_hello_world.cpp
 
 echo
@@ -37,6 +37,7 @@ echo
 cd poisbinom
 Rscript -e "library(Rcpp); compileAttributes(verbose=TRUE)"
 rm man/poisbinom-package.Rd
+rm man/rcpp_hello_world.Rd
 
 echo
 echo
