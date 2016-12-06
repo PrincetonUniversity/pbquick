@@ -23,10 +23,6 @@ microbenchmark(ppoibin(eval.vec,phis)
 
 #Test qpoisbinom
 cat("Test quantile function:\n")
-head(qpoibin(phis,phis))
-head(qpoisbinom(phis,phis))
-tail(qpoibin(phis,phis))
-tail(qpoisbinom(phis,phis))
 identical(round(qpoibin(phis,phis), 6), round(qpoisbinom(phis,phis), 6))
 microbenchmark(qpoibin(phis,phis)
                ,qpoisbinom(phis, phis),
