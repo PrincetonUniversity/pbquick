@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <R_ext/Utils.h> // for findInterval();
 #include <fftw3.h>
 
 
@@ -55,7 +56,7 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
   dft_pmf(out, m, pp);
 
  
-  //form return object
+  //form cumulative probabilities
   Rcpp::NumericVector csum(max_q);
   double prob = 0.0;
   double scale = 1.0 / m;
@@ -64,7 +65,8 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
       prob += out[k][0] * scale;
       csum[k] = prob;
     }
-  
+
+  //form return object
   Rcpp::NumericVector res(nn);
   int kk;
   for(std::size_t k = 0; k < nn; ++k)
@@ -73,9 +75,6 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
       res[k] = csum[kk];
     }
 
-  //Destroy dft object
-  fftw_free(out);
-
   if(!lower_tail)
     res = 1.0 - res;
   
@@ -83,6 +82,51 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
     return(log(res));
   else
     return(res);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
+			       Rcpp::NumericVector& pp)
+{
+  int nn = invec.size();
+  int m = pp.size() + 1;
+  fftw_complex* out;  
+  out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * m);
+
+  //dft
+  dft_pmf(out, m, pp);
+
+  //form cumulative probabilities
+  Rcpp::NumericVector csum(m);
+  double prob = 0.0;
+  double scale = 1.0 / m;
+  for(std::size_t k = 0; k <= m; ++k)
+    {
+      prob += out[k][0] * scale;
+      csum[k] = prob;
+    }
+
+  //sort keeping track of original order
+  Rcpp::NumericVector s_invec = Rcpp::clone(invec).sort();
+  Rcpp::IntegerVector order = Rcpp::match(s_invec, invec);
+
+  //find interval on sorted vector, and form return object
+  Rcpp::IntegerVector res(nn);
+  int kk;
+  int flag;
+  int t_res;
+  for(std::size_t k = 0; k < nn; ++k)
+    {
+      t_res = findInterval(&csum[0], csum.size(), s_invec[k], FALSE, FALSE, t_res, &flag);
+      kk = order[k];
+      res[kk-1] = t_res;
+    }
+  
+  //Destroy dft object
+  fftw_free(out);
+
+  return(res);
+    
 }
 
 void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp)
