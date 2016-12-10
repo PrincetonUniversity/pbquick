@@ -5,6 +5,10 @@
 
 void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp);
 
+
+/*
+  Probability mass function
+*/
 // [[Rcpp::export]]
 Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& invec,
 			       Rcpp::NumericVector& pp,
@@ -17,7 +21,6 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& invec,
 
   //dft
   dft_pmf(out, m, pp);
-
  
   //form return object
   Rcpp::NumericVector res(nn);
@@ -38,15 +41,16 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& invec,
     return(res);
 }
 
-// [[Rcpp::export]]
-Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
-			       Rcpp::NumericVector& pp,
-			       bool lower_tail = true,
-			       bool log_p = false)
+
+/*
+  Raw function that computes the cumulative probabilities for first 'max_q' values
+  of the support, i.e., 0, 1, ..., max_q - 1.
+ */
+Rcpp::NumericVector ppoisbinom_raw(int max_q,
+				   Rcpp::NumericVector& pp)
 {
   int m = pp.size() + 1;
-  int nn = invec.size();
-  int max_q = max(invec) + 1; // maximum of quantiles plus one
+  
   fftw_complex* out;  
   out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * m);
 
@@ -67,8 +71,27 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
 
   //Destroy dft object
   fftw_free(out);
+
+  return csum;
+}
+
+
+/*
+  C++ wrapper for the cumulative probability function
+*/
+// [[Rcpp::export]]
+Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
+			       Rcpp::NumericVector& pp,
+			       bool lower_tail = true,
+			       bool log_p = false)
+{
+
+  int max_q = max(invec) + 1; // maximum of quantiles plus one
+
+  Rcpp::NumericVector csum = ppoisbinom_raw(max_q, pp);
   
   //form return object
+  int nn = invec.size();
   Rcpp::NumericVector res(nn);
   int kk;
   for(std::size_t k = 0; k < nn; ++k)
@@ -87,6 +110,9 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
 }
 
 
+/*
+  C++ wrapper for the quantile function
+*/
 // [[Rcpp::export]]
 Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
 			       Rcpp::NumericVector& pp,
@@ -94,31 +120,11 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
 			       bool log_p = false)
 {
   if (log_p) invec = exp(invec);
-  
-  int nn = invec.size();
-  int m = pp.size() + 1;
-  fftw_complex* out;  
-  out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * m);
 
-  //dft
-  dft_pmf(out, m, pp);
-
-  //form cumulative probabilities
-  Rcpp::NumericVector csum(m);
-  double scale = 1.0 / m;
-  csum[0] = out[0][0] * scale;
-  int k = 1;    
-  do
-    {
-      csum[k] = out[k][0] * scale + csum[k - 1];
-      ++k;
-    }
-  while(k < m);
-
-  //Destroy dft object
-  fftw_free(out);
+  Rcpp::NumericVector csum = ppoisbinom_raw(pp.size() + 1, pp);
   
   //sort keeping track of original order
+  int nn = invec.size();
   Rcpp::NumericVector s_invec = Rcpp::clone(invec).sort();
   Rcpp::IntegerVector order = Rcpp::match(s_invec, invec);
 
@@ -138,6 +144,10 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
     
 }
 
+
+/*
+  Probability mass function using DFT
+*/
 void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp)
 {
   int n = m - 1;
@@ -183,4 +193,3 @@ void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp)
   fftw_destroy_plan(p);
   fftw_free(in);
 }
-
