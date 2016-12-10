@@ -62,5 +62,5 @@ vignettes/*.pdf
 *.out
 *.app
 
-# auto-created files by emacs
+# auto-saved files by emacs
 *.*~
