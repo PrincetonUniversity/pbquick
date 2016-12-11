@@ -27,3 +27,13 @@ identical(round(qpoibin(phis,phis), 6), round(qpoisbinom(phis,phis), 6))
 microbenchmark(qpoibin(phis,phis)
                ,qpoisbinom(phis, phis),
                times = 5L)
+
+#Test rpoisbinom
+cat("Test random number generator:\n")
+set.seed(45692); out.rpoibin <- as.integer(rpoibin(400, phis))
+set.seed(45692); out.rpoisbinom <- rpoisbinom(400, phis)
+identical(out.rpoibin, out.rpoisbinom)
+microbenchmark(rpoibin(1000, phis)
+              ,rpoisbinom(1000, phis),
+               times = 5L)
+     
