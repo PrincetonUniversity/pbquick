@@ -111,6 +111,30 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
 
 
 /*
+  Subroutine to find interval in cdf
+*/
+Rcpp::IntegerVector find_from_cdf(Rcpp::NumericVector& csum,
+				  Rcpp::NumericVector& s_invec,
+				  Rcpp::IntegerVector& order,
+				  int n,
+				  int t_res)
+{
+  Rcpp::IntegerVector res(n);
+  int kk;
+  int flag;
+  for(std::size_t k = 0; k < n; ++k)
+    {
+      t_res = findInterval(&csum[0], csum.size(), s_invec[k], FALSE, FALSE, t_res, &flag);
+      kk = order[k];
+      res[kk-1] = t_res;
+    }
+
+  return res;
+  
+}
+
+
+/*
   Quantile function
 */
 // [[Rcpp::export]]
@@ -129,16 +153,8 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
   Rcpp::IntegerVector order = Rcpp::match(s_invec, invec);
 
   //find interval on sorted vector, and form return object
-  Rcpp::IntegerVector res(nn);
-  int kk;
-  int flag;
   int t_res = floor(Rcpp::sum(pp));
-  for(std::size_t k = 0; k < nn; ++k)
-    {
-      t_res = findInterval(&csum[0], csum.size(), s_invec[k], FALSE, FALSE, t_res, &flag);
-      kk = order[k];
-      res[kk-1] = t_res;
-    }
+  Rcpp::IntegerVector res = find_from_cdf(csum, s_invec, order, nn, t_res);
   
   return(res);
     
@@ -161,17 +177,9 @@ Rcpp::IntegerVector rpoisbinom(int n,
   Rcpp::NumericVector csum = ppoisbinom_raw(pp.size() + 1, pp);
 
   // inverse-cdf method: find interval on sorted vector, and form return object
-  Rcpp::IntegerVector res(n);
-  int kk;
-  int flag;
   int t_res = floor(Rcpp::sum(pp));
-  for(std::size_t k = 0; k < n; ++k)
-    {
-      t_res = findInterval(&csum[0], csum.size(), sorted_u[k], FALSE, FALSE, t_res, &flag);
-      kk = order[k];
-      res[kk-1] = t_res;
-    }
-  
+  Rcpp::IntegerVector res = find_from_cdf(csum, sorted_u, order, n, t_res);
+
   return(res);
   
 }
