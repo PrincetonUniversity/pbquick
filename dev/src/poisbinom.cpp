@@ -10,12 +10,17 @@ void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp);
   Probability mass function
 */
 // [[Rcpp::export]]
-Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& invec,
+Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& x,
 			       Rcpp::NumericVector& pp,
 			       bool log_d = false)
 {
+  //Check bounds
+  if( Rcpp::is_true(Rcpp::any(pp > 1)) || Rcpp::is_true(Rcpp::any(pp < 0)) ){
+    Rcpp::stop("Values in pp must be between 0 and 1.");
+  }
+  
   int m = pp.size() + 1;
-  int nn = invec.size();
+  int nn = x.size();
   fftw_complex* out;  
   out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * m);
 
@@ -28,7 +33,7 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& invec,
   int kk;
   for(std::size_t k = 0; k < nn; ++k)
     {
-      kk = invec[k];
+      kk = x[k];
       res[k] = out[kk][0] * scale;
     }
   
@@ -45,10 +50,11 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& invec,
 /*
   Raw function that computes the cumulative probabilities for first 'max_q' values
   of the support, i.e., 0, 1, ..., max_q - 1.
- */
+*/
 Rcpp::NumericVector ppoisbinom_raw(int max_q,
 				   Rcpp::NumericVector& pp)
 {
+  
   int m = pp.size() + 1;
   
   fftw_complex* out;  
@@ -80,23 +86,27 @@ Rcpp::NumericVector ppoisbinom_raw(int max_q,
   C++ wrapper for the cumulative probability function
 */
 // [[Rcpp::export]]
-Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& invec,
+Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& q,
 			       Rcpp::NumericVector& pp,
 			       bool lower_tail = true,
 			       bool log_p = false)
 {
-
-  int max_q = max(invec) + 1; // maximum of quantiles plus one
+  //Check bounds
+  if( Rcpp::is_true(Rcpp::any(pp > 1)) || Rcpp::is_true(Rcpp::any(pp < 0)) ){
+    Rcpp::stop("Values in pp must be between 0 and 1.");
+  }
+  
+  int max_q = max(q) + 1; // maximum of quantiles plus one
 
   Rcpp::NumericVector csum = ppoisbinom_raw(max_q, pp);
   
   //form return object
-  int nn = invec.size();
+  int nn = q.size();
   Rcpp::NumericVector res(nn);
   int kk;
   for(std::size_t k = 0; k < nn; ++k)
     {
-      kk = invec[k];
+      kk = q[k];
       res[k] = csum[kk];
     }
 
@@ -138,19 +148,27 @@ Rcpp::IntegerVector find_from_cdf(Rcpp::NumericVector& csum,
   Quantile function
 */
 // [[Rcpp::export]]
-Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
+Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& p,
 			       Rcpp::NumericVector& pp,
 			       bool lower_tail = true,
 			       bool log_p = false)
 {
-  if (log_p) invec = exp(invec);
+  //Check bounds
+  if( Rcpp::is_true(Rcpp::any(pp > 1)) || Rcpp::is_true(Rcpp::any(pp < 0)) ){
+    Rcpp::stop("Values in pp must be between 0 and 1.");
+  }
+  if( Rcpp::is_true(Rcpp::any(p > 1)) || Rcpp::is_true(Rcpp::any(p < 0)) ){
+    Rcpp::stop("Values in p must be between 0 and 1.");
+  }
+  
+  if (log_p) p = exp(p);
 
   Rcpp::NumericVector csum = ppoisbinom_raw(pp.size() + 1, pp);
   
   //sort keeping track of original order
-  int nn = invec.size();
-  Rcpp::NumericVector s_invec = Rcpp::clone(invec).sort();
-  Rcpp::IntegerVector order = Rcpp::match(s_invec, invec);
+  int nn = p.size();
+  Rcpp::NumericVector s_invec = Rcpp::clone(p).sort();
+  Rcpp::IntegerVector order = Rcpp::match(s_invec, p);
 
   //find interval on sorted vector, and form return object
   int t_res = floor(Rcpp::sum(pp));
@@ -168,6 +186,10 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& invec,
 Rcpp::IntegerVector rpoisbinom(int n,
 			       Rcpp::NumericVector& pp)
 {
+  //Check bounds
+  if( Rcpp::is_true(Rcpp::any(pp > 1)) || Rcpp::is_true(Rcpp::any(pp < 0)) ){
+    Rcpp::stop("Values in pp must be between 0 and 1.");
+  }
   // generate random number from uniform(0, 1) and sort the output
   Rcpp::NumericVector u = Rcpp::runif(n);
   Rcpp::NumericVector sorted_u = Rcpp::clone(u).sort();
@@ -183,7 +205,6 @@ Rcpp::IntegerVector rpoisbinom(int n,
   return(res);
   
 }
-
 
 /*
   Probability mass function using DFT

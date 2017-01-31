@@ -25,11 +25,12 @@ echo
 echo
 
 cp -r src/* poisbinom/src/
+cp -r man/* poisbinom/man/
 rm poisbinom/src/rcpp_hello_world.cpp
 
 echo
 echo
-echo "C++ codes are copied."
+echo "C++ code and manual are copied."
 echo "--------------------------"
 echo
 echo
