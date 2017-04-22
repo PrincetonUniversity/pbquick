@@ -24,6 +24,9 @@ echo "--------------------------"
 echo
 echo
 
+## DESCRIPTION
+cp pkg/DESCRIPTION poisbinom/
+
 cp -r src/* poisbinom/src/
 cp -r man/* poisbinom/man/
 rm poisbinom/src/rcpp_hello_world.cpp
@@ -37,8 +40,10 @@ echo
 
 cd poisbinom
 Rscript -e "library(Rcpp); compileAttributes(verbose=TRUE)"
-rm man/poisbinom-package.Rd
+cp ../pkg/NAMESPACE NAMESPACE
+
 rm man/rcpp_hello_world.Rd
+rm man/poisbinom-package.Rd
 
 echo
 echo
@@ -48,7 +53,17 @@ echo
 echo
 
 cd ..
-R CMD INSTALL poisbinom
+R CMD build poisbinom
+R CMD check poisbinom_1.0.0.tar.gz --as-cran
+
+echo
+echo
+echo "'poisbinom' is checked."
+echo "--------------------------"
+echo
+echo
+
+R CMD INSTALL poisbinom_1.0.0.tar.gz
 
 echo
 echo
@@ -62,5 +77,3 @@ echo
 echo
 
 Rscript test/test_poisbinom.R --verbose
-
-

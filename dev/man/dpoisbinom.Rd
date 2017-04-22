@@ -8,7 +8,7 @@
 Probability mass, distribution, quantile and function, and random number generator for the Poisson-Binomial distribution with parameter vector \code{pp} (the probability parameter of the component Binomial random variables).  
 }
 \usage{
-dpoisbinom(x, pp, log = FALSE)
+dpoisbinom(x, pp, log_d = FALSE)
 ppoisbinom(q, pp, lower_tail = TRUE, log_p = FALSE)
 qpoisbinom(p, pp, lower_tail = TRUE, log_p = FALSE)
 rpoisbinom(n,pp)
@@ -23,11 +23,12 @@ vector of probabilities.
 \item{n}{
 number of random deviates.
 }
-\item{log, log_p}{
+\item{log_d, log_p}{
 logical; if TRUE, probabilities are given in the log scale.
 }
 \item{lower_tail}{
-logical; if TRUE (default), probabilities are \eqn{Pr(X\leqx)}, otherwise, \eqn{Pr(X>x)}.
+logical; if TRUE (default), probabilities are \eqn{Pr(X \leq x)},
+otherwise, \eqn{Pr(X > x)}.
 }
 }
 \details{
