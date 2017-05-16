@@ -30,6 +30,7 @@ cp pkg/DESCRIPTION poisbinom/
 cp -r src/* poisbinom/src/
 cp -r man/* poisbinom/man/
 rm poisbinom/src/rcpp_hello_world.cpp
+rm poisbinom/Read-and-delete-me
 
 echo
 echo

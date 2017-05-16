@@ -18,28 +18,28 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& x,
   if( Rcpp::is_true(Rcpp::any(pp > 1)) || Rcpp::is_true(Rcpp::any(pp < 0)) ){
     Rcpp::stop("Values in pp must be between 0 and 1.");
   }
-  
+
   int m = pp.size() + 1;
   int nn = x.size();
-  fftw_complex* out;  
+  fftw_complex* out;
   out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * m);
 
   //dft
   dft_pmf(out, m, pp);
- 
+
   //form return object
   Rcpp::NumericVector res(nn);
   double scale = 1.0 / m;
   int kk;
-  for(std::size_t k = 0; k < nn; ++k)
+  for(int k = 0; k < nn; ++k)
     {
       kk = x[k];
       res[k] = out[kk][0] * scale;
     }
-  
+
   //Destroy dft object
   fftw_free(out);
-  
+
   if(log_d)
     return(log(res));
   else
@@ -54,10 +54,10 @@ Rcpp::NumericVector dpoisbinom(Rcpp::IntegerVector& x,
 Rcpp::NumericVector ppoisbinom_raw(int max_q,
 				   Rcpp::NumericVector& pp)
 {
-  
+
   int m = pp.size() + 1;
-  
-  fftw_complex* out;  
+
+  fftw_complex* out;
   out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * m);
 
   //dft
@@ -67,7 +67,7 @@ Rcpp::NumericVector ppoisbinom_raw(int max_q,
   Rcpp::NumericVector csum(max_q);
   double scale = 1.0 / m;
   csum[0] = out[0][0] * scale;
-  int k = 1;    
+  int k = 1;
   do
     {
       csum[k] = out[k][0] * scale + csum[k - 1];
@@ -95,16 +95,16 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& q,
   if( Rcpp::is_true(Rcpp::any(pp > 1)) || Rcpp::is_true(Rcpp::any(pp < 0)) ){
     Rcpp::stop("Values in pp must be between 0 and 1.");
   }
-  
+
   int max_q = max(q) + 1; // maximum of quantiles plus one
 
   Rcpp::NumericVector csum = ppoisbinom_raw(max_q, pp);
-  
+
   //form return object
   int nn = q.size();
   Rcpp::NumericVector res(nn);
   int kk;
-  for(std::size_t k = 0; k < nn; ++k)
+  for(int k = 0; k < nn; ++k)
     {
       kk = q[k];
       res[k] = csum[kk];
@@ -112,7 +112,7 @@ Rcpp::NumericVector ppoisbinom(Rcpp::IntegerVector& q,
 
   if(!lower_tail)
     res = 1.0 - res;
-  
+
   if(log_p)
     return(log(res));
   else
@@ -132,7 +132,7 @@ Rcpp::IntegerVector find_from_cdf(Rcpp::NumericVector& csum,
   Rcpp::IntegerVector res(n);
   int kk;
   int flag;
-  for(std::size_t k = 0; k < n; ++k)
+  for(int k = 0; k < n; ++k)
     {
       t_res = findInterval(&csum[0], csum.size(), s_invec[k], FALSE, FALSE, t_res, &flag);
       kk = order[k];
@@ -140,7 +140,7 @@ Rcpp::IntegerVector find_from_cdf(Rcpp::NumericVector& csum,
     }
 
   return res;
-  
+
 }
 
 
@@ -160,11 +160,11 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& p,
   if( Rcpp::is_true(Rcpp::any(p > 1)) || Rcpp::is_true(Rcpp::any(p < 0)) ){
     Rcpp::stop("Values in p must be between 0 and 1.");
   }
-  
+
   if (log_p) p = exp(p);
 
   Rcpp::NumericVector csum = ppoisbinom_raw(pp.size() + 1, pp);
-  
+
   //sort keeping track of original order
   int nn = p.size();
   Rcpp::NumericVector s_invec = Rcpp::clone(p).sort();
@@ -173,9 +173,9 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& p,
   //find interval on sorted vector, and form return object
   int t_res = floor(Rcpp::sum(pp));
   Rcpp::IntegerVector res = find_from_cdf(csum, s_invec, order, nn, t_res);
-  
+
   return(res);
-    
+
 }
 
 
@@ -203,7 +203,7 @@ Rcpp::IntegerVector rpoisbinom(int n,
   Rcpp::IntegerVector res = find_from_cdf(csum, sorted_u, order, n, t_res);
 
   return(res);
-  
+
 }
 
 /*
@@ -229,18 +229,18 @@ void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp)
   in[0][0] = 1.0;
   in[0][1] = 0.0;
 
-  
-  int halfn = ceil((n) / 2) + 1; 
-  for (std::size_t i = 1; i <= halfn; ++i){
+
+  int halfn = ceil((n) / 2) + 1;
+  for (int i = 1; i <= halfn; ++i){
     temp = 1.;
     tmp_real = f.real();
     tmp_imag = f.imag();
     f.real(tmp_real * C_real - tmp_imag * C_imag);
     f.imag(tmp_imag * C_real + tmp_real * C_imag);
-    for(std::size_t j = 0; j < n; ++j){
+    for(int j = 0; j < n; ++j){
       temp *= (1. + (f - 1.) * pp[j]);
     }
-    
+
     in[i][0] = temp.real();
     in[i][1] = temp.imag();
     in[m-i][0] = temp.real();
