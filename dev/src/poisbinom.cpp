@@ -171,7 +171,7 @@ Rcpp::IntegerVector qpoisbinom(Rcpp::NumericVector& p,
   Rcpp::IntegerVector order = Rcpp::match(s_invec, p);
 
   //find interval on sorted vector, and form return object
-  int t_res = floor(Rcpp::sum(pp));
+  int t_res = std::floor(Rcpp::sum(pp));
   Rcpp::IntegerVector res = find_from_cdf(csum, s_invec, order, nn, t_res);
 
   return(res);
@@ -199,7 +199,7 @@ Rcpp::IntegerVector rpoisbinom(int n,
   Rcpp::NumericVector csum = ppoisbinom_raw(pp.size() + 1, pp);
 
   // inverse-cdf method: find interval on sorted vector, and form return object
-  int t_res = floor(Rcpp::sum(pp));
+  int t_res = std::floor(Rcpp::sum(pp));
   Rcpp::IntegerVector res = find_from_cdf(csum, sorted_u, order, n, t_res);
 
   return(res);
@@ -230,7 +230,7 @@ void dft_pmf(fftw_complex* out, int m,  Rcpp::NumericVector& pp)
   in[0][1] = 0.0;
 
 
-  int halfn = ceil((n) / 2) + 1;
+  int halfn = n / 2 + 1;
   for (int i = 1; i <= halfn; ++i){
     temp = 1.;
     tmp_real = f.real();
