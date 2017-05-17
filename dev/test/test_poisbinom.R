@@ -4,8 +4,8 @@ library(microbenchmark)
 
 
 set.seed(831213)
-phis <- runif(5000)
-eval.vec <- 0:5000
+phis <- runif(5001)
+eval.vec <- 0:5001
 
 ## Test dpoisbinom
 cat("\n")

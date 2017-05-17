@@ -1,7 +1,7 @@
 Package: poisbinom
 Type: Package
 Title: A Faster Implementation of the Poisson-Binomial Distribution
-Version: 1.0.0
+Version: 1.0.1
 Date: 2017-05-16
 Author: Santiago Olivella [aut, cre],
 	Yuki Shiraito [aut, cre]
